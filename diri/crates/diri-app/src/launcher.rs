@@ -5,7 +5,8 @@ use std::sync::Arc;
 
 use diri_proto::{AgentKind, Project};
 use diri_ui::{
-    AgentKind as UiAgentKind, AgentLogo, Fill, FloatingSurface, Palette, Radius, SemanticColors,
+    AgentKind as UiAgentKind, AgentLogo, Fill, FloatingSurface, HairlineDivider, Palette, Radius,
+    SemanticColors,
 };
 use gpui::{
     AnyElement, App, Context, EventEmitter, FocusHandle, Focusable, FontWeight, KeyDownEvent,
@@ -437,7 +438,39 @@ impl LauncherOverlay {
                     }),
             );
         }
-        FloatingSurface::new(colors, list).into_any_element()
+        FloatingSurface::new(
+            colors,
+            div()
+                .flex()
+                .flex_col()
+                .child(list)
+                .child(HairlineDivider::horizontal(colors))
+                .child(
+                    div()
+                        .id("launcher-browse-project")
+                        .mx(px(6.0))
+                        .my(px(6.0))
+                        .h(px(38.0))
+                        .px(px(9.0))
+                        .flex()
+                        .items_center()
+                        .gap(px(9.0))
+                        .rounded(px(8.0))
+                        .cursor_pointer()
+                        .hover(move |row| row.bg(colors.primary.alpha(0.06)))
+                        .on_click(cx.listener(|this, _, window, cx| {
+                            this.choose_folder(window, cx);
+                        }))
+                        .child(sf_symbol("plus", 12.0, colors.secondary))
+                        .child(
+                            div()
+                                .text_size(px(12.0))
+                                .text_color(colors.primary)
+                                .child("Browse…"),
+                        ),
+                ),
+        )
+        .into_any_element()
     }
 
     fn render_panel(
